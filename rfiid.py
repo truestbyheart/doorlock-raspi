@@ -82,8 +82,8 @@ def checkRFidTagIN(tagId):
                     rows.append(st)		
                     rows.append(name+".")
                     rows.append(stat)
-		            ledIN.on()
-                    ledOUT.off()
+                    ledIN.on()
+                    ledIN.off()
             
                     for word in rows:
                         sent += str(word) + ","
@@ -121,8 +121,8 @@ def checkRFidTagOUT(tagId):
                     rows.append(st)	
                     rows.append(name[:-1])
                     rows.append(stat)
-		            ledIN.off()
-                    ledOUT.on()
+                    ledIN.off()
+                    ledIN.on()
 
                     
                     for word in rows:

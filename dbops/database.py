@@ -74,7 +74,7 @@ class Database:
                 """
                 CREATE TABLE IF NOT EXISTS users(
                     id  INTEGER AUTO_INCREMENT,
-                    rf_id INTEGER ,
+                    rf_id VARCHAR(255),
                     create_at  DATE NOT NULL,
                     updated_at DATE NOT NULL,
                     PRIMARY KEY (`rf_id`),
@@ -89,7 +89,7 @@ class Database:
                 """
                            CREATE TABLE IF NOT EXISTS access_logs(
                             id INTEGER AUTO_INCREMENT,
-                            rf_id INTEGER NOT NULL,
+                            rf_id VARCHAR(255) NOT NULL,
                             current_state ENUM('IN', 'OUT') NULL,
                             create_at DATE NOT NULL,
                             updated_at DATE NOT NULL,
@@ -103,9 +103,18 @@ class Database:
     def query_runner(self, query):
         try:
             print(f"Query Executing: {query}")
-            return self.engine.execute(text(query))
+            return self.engine.execute(text(query)).all()
         except Exception as ex:
             print(f"{query} failed because of: {ex}")
+            
+    def add_log_entry(self, rf_id, state):
+        return self.query_runner(f"""INSERT INTO access_logs(rf_id, current_state) VALUES ("{rf_id}", "{state}")""")        
+            
+    def check_if_user_exists(self, rf_id):
+        return self.query_runner(f"""SELECT * FROM users WHERE rf_id="{rf_id}" """) 
+        
+    def get_last_log_entry(self, rf_id):
+        return self.query_runner(f"""SELECT * FROM access_logs WHERE rf_id="{rf_id}" ORDER BY id  DESC LIMIT 1""")            
 
     def get_connection(self):
         try:
@@ -113,6 +122,7 @@ class Database:
             # GET THE CONNECTION OBJECT (ENGINE) FOR THE DATABASE
             engine = self.create_connection()
             self.generate_table(engine)
+            self.engine = engine
             print(
                 f"Connection to the {self.host} for user {self.user} created successfully."
             )
