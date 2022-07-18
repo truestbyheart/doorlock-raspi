@@ -9,11 +9,11 @@
 2. open the file and add the following at the end
 
 ```shell
-export DATABASE_USERNAME=sql8507066 # replace with database username
-export DATABASE_PASSWORD=8Dh6qETGM5 # replace with databse password
-export DATABASE_HOST=sql8.freemysqlhosting.net # replace with database host
+export DATABASE_USERNAME=root # replace with database username
+export DATABASE_PASSWORD=toor # replace with databse password
+export DATABASE_HOST=localhost # replace with database host
 export DATABASE_PORT=3306 # replace if needed but mysql port is always accessed via this port
-export DATABASE_DB_NAME=sql8507066 # replace with database name
+export DATABASE_DB_NAME=db # replace with database name
 ```
 
 3. Refresh environment by running 
