@@ -9,15 +9,27 @@ from os import getenv
 from random import randint
 from evdev import InputDevice
 from select import select
-from dbops import Database
+from ops import Database
+from evdev import InputDevice, list_devices
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 GPIO.setup(20,GPIO.OUT)
 GPIO.setup(21,GPIO.OUT) 
 
-continue_reading = True
+global Card
+global continue_reading
 
+continue_reading = True
+Card = []
+
+def assignPort():
+    devices = map(InputDevice, list_devices())
+    for dev in devices:
+        if "RFID" in  dev.name:
+            Card.append(dev.path)
+    
+    
 def process_rf_card(rf_id, state):
      # CHECK IF THE USER EXISTS
      user = db.check_if_user_exists(rf_id=rf_id)
@@ -48,7 +60,7 @@ def process_rf_card(rf_id, state):
 
 def reader_in():  
     keys = "X^1234567890XXXXqwertzuiopXXXXasdfghjklXXXXXyxcvbnmXXXXXXXXXXXXXXXXXXXXXXX"
-    dev = InputDevice('/dev/input/event7')
+    dev = InputDevice(Card[0])
     rfid_presented = ""
 
     while continue_reading:
@@ -66,7 +78,7 @@ def reader_in():
 
 def reader_out():  
     keys = "X^1234567890XXXXqwertzuiopXXXXasdfghjklXXXXXyxcvbnmXXXXXXXXXXXXXXXXXXXXXXX"
-    dev1 = InputDevice('/dev/input/event8')
+    dev1 = InputDevice(Card[1])
     rfid_presented = ""
 
     while continue_reading:
@@ -85,7 +97,6 @@ def reader_out():
  
 # Capture SIGINT for cleanup when the script is aborted
 def end_read(signal,frame):
-    global continue_reading
     print ("Ctrl+C captured, ending read.")
     continue_reading = False
     GPIO.output(20,GPIO.LOW)
@@ -97,6 +108,7 @@ if __name__ == '__main__':
     db = Database(getenv('DATABASE_USERNAME'), getenv('DATABASE_PASSWORD'), getenv('DATABASE_PORT'), getenv('DATABASE_HOST'), getenv('DATABASE_DB_NAME'))
     db.get_connection()
     GPIO.output(20,GPIO.HIGH)
+    assignPort()
     readerOne = threading.Thread(target=reader_in)
     readerTwo = threading.Thread(target=reader_out)
     readerOne.start()

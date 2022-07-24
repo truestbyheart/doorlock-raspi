@@ -74,9 +74,10 @@ class Database:
                 """
                 CREATE TABLE IF NOT EXISTS users(
                     id  INTEGER AUTO_INCREMENT,
-                    rf_id VARCHAR(255),
-                    create_at  TIMESTAMP NOT NULL,
-                    update_at TIMESTAMP NOT NULL,
+                    full_name VARCHAR(255) NOT NULL,
+                    rf_id VARCHAR(255) NOT NULL,
+                    created_at  TIMESTAMP NOT NULL,
+                    updated_at TIMESTAMP NOT NULL,
                     PRIMARY KEY (`rf_id`),
                     KEY `id` (`id`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
@@ -91,8 +92,8 @@ class Database:
                             id INTEGER AUTO_INCREMENT,
                             rf_id VARCHAR(255) NOT NULL,
                             current_state ENUM('IN', 'OUT') NULL,
-                            create_at TIMESTAMP NOT NULL,
-                            update_at TIMESTAMP NOT NULL,
+                            created_at TIMESTAMP NOT NULL,
+                            updated_at TIMESTAMP NOT NULL,
                             PRIMARY KEY(`id`),
                             CONSTRAINT rf_id_frk FOREIGN KEY(`rf_id`) REFERENCES users(`rf_id`)
                         ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8
