@@ -59,11 +59,11 @@ class Database:
         self.database = database
 
     def create_connection(self):
-        print("mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
+        print("postgresql://{0}:{1}@{2}:{3}/{4}".format(
                 self.user, self.password, self.host, self.port, self.database
             ))
         return create_engine(
-            url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
+            url="postgresql://{0}:{1}@{2}:{3}/{4}".format(
                 self.user, self.password, self.host, self.port, self.database
             )
         )
@@ -72,15 +72,23 @@ class Database:
         engine.execute(
             text(
                 """
-                CREATE TABLE IF NOT EXISTS users(
-                    id  INTEGER AUTO_INCREMENT,
-                    full_name VARCHAR(255) NOT NULL,
-                    rf_id VARCHAR(255) NOT NULL,
-                    created_at  TIMESTAMP NOT NULL,
-                    updated_at TIMESTAMP NOT NULL,
-                    PRIMARY KEY (`rf_id`),
-                    KEY `id` (`id`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8
+                  CREATE TYPE card_state AS ENUM('IN','OUT')
+                """
+            )
+        )
+        engine.execute(
+            text(
+                """
+                CREATE TABLE access_logs (
+                    id BIGSERIAL NOT NULL,
+                    rf_id varchar(255) NOT NULL,
+                    current_state card_state DEFAULT NULL,
+                    created_at timestamp with time zone DEFAULT now(),
+                    updated_at timestamp with time zone DEFAULT now(),
+                    PRIMARY KEY (id),
+                    FOREIGN KEY (rf_id) REFERENCES users (rf_id) 
+                    ON DELETE CASCADE ON UPDATE CASCADE
+                )
             """
             )
         )
@@ -88,15 +96,13 @@ class Database:
         engine.execute(
             text(
                 """
-                           CREATE TABLE IF NOT EXISTS access_logs(
-                            id INTEGER AUTO_INCREMENT,
-                            rf_id VARCHAR(255) NOT NULL,
-                            current_state ENUM('IN', 'OUT') NULL,
-                            created_at TIMESTAMP NOT NULL,
-                            updated_at TIMESTAMP NOT NULL,
-                            PRIMARY KEY(`id`),
-                            CONSTRAINT rf_id_frk FOREIGN KEY(`rf_id`) REFERENCES users(`rf_id`)
-                        ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8
+                  CREATE TABLE users (
+                        id BIGSERIAL NOT NULL,
+                        full_name varchar(255) NOT NULL,
+                        rf_id varchar(255) PRIMARY KEY NOT NULL,
+                        created_at timestamp with time zone DEFAULT now(),
+                        updated_at timestamp with time zone DEFAULT now()
+                    )
                 """
             )
         )
